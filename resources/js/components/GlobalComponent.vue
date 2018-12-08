@@ -4,9 +4,11 @@
             <form-component @new="addComment"></form-component>
             <br>
             <comment-component
-                    v-for="comment in comments"
+                    v-for="(comment, index) in comments"
                     :key="comment.id"
-                    :comment="comment">
+                    :comment="comment"
+                    @update="updateComment(index, ...arguments)"
+                    @delete="deleteComment(index)">
             </comment-component>
         </div>
     </div>
@@ -16,16 +18,23 @@
     export default {
         data() {
           return {
-              comments: [{
-                  'id': 1,
-                  'description': 'algo asi',
-                  'created_at': '06/12/2018'
-              }]
+              comments: []
           }
+        },
+        mounted(){
+            axios.get('/comments').then((response) => {
+                this.comments = response.data;
+            });
         },
         methods: {
             addComment(comment) {
                 this.comments.push(comment);
+            },
+            updateComment(index, comment){
+                this.comments[index] = comment;
+            },
+            deleteComment(index){
+                this.comments.splice(index, 1);
             }
         }
     }

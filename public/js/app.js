@@ -47738,7 +47738,7 @@ exports = module.exports = __webpack_require__(12)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -47796,21 +47796,32 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     data: function data() {
         return {
-            comments: [{
-                'id': 1,
-                'description': 'algo asi',
-                'created_at': '06/12/2018'
-            }]
+            comments: []
         };
+    },
+    mounted: function mounted() {
+        var _this = this;
+
+        axios.get('/comments').then(function (response) {
+            _this.comments = response.data;
+        });
     },
 
     methods: {
         addComment: function addComment(comment) {
             this.comments.push(comment);
+        },
+        updateComment: function updateComment(index, comment) {
+            this.comments[index] = comment;
+        },
+        deleteComment: function deleteComment(index) {
+            this.comments.splice(index, 1);
         }
     }
 });
@@ -47832,10 +47843,21 @@ var render = function() {
         _vm._v(" "),
         _c("br"),
         _vm._v(" "),
-        _vm._l(_vm.comments, function(comment) {
+        _vm._l(_vm.comments, function(comment, index) {
           return _c("comment-component", {
             key: comment.id,
-            attrs: { comment: comment }
+            attrs: { comment: comment },
+            on: {
+              update: function($event) {
+                var i = arguments.length,
+                  argsArray = Array(i)
+                while (i--) argsArray[i] = arguments[i]
+                _vm.updateComment.apply(void 0, [index].concat(argsArray))
+              },
+              delete: function($event) {
+                _vm.deleteComment(index)
+              }
+            }
           })
         })
       ],
@@ -47923,11 +47945,40 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     props: ['comment'],
     data: function data() {
-        return {};
+        return {
+            editMode: false
+        };
+    },
+
+    methods: {
+        onClickDelete: function onClickDelete() {
+            var _this = this;
+
+            axios.delete('/comments/' + this.comment.id).then(function () {
+                _this.$emit('delete');
+            });
+        },
+        onClickEdit: function onClickEdit() {
+            this.editMode = true;
+        },
+        onClickUpdate: function onClickUpdate() {
+            var _this2 = this;
+
+            var params = {
+                description: this.comment.description
+            };
+            axios.put('/comments/' + this.comment.id, params).then(function (response) {
+                _this2.editMode = false;
+                var comment = response.data;
+                _this2.$emit('update', comment);
+            });
+        }
     }
 });
 
@@ -47941,30 +47992,85 @@ var render = function() {
   var _c = _vm._self._c || _h
   return _c("div", { staticClass: "card" }, [
     _c("div", { staticClass: "card-header" }, [
-      _vm._v("Publicado en " + _vm._s(_vm.comment.created_at))
+      _vm._v(
+        "Created at " +
+          _vm._s(_vm.comment.created_at) +
+          " - Updated at " +
+          _vm._s(_vm.comment.updated_at)
+      )
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "card-body" }, [
       _c("div", { staticClass: "panel-body" }, [
-        _c("p", [_vm._v(_vm._s(_vm.comment.description))])
+        _vm.editMode
+          ? _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.comment.description,
+                  expression: "comment.description"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { type: "text" },
+              domProps: { value: _vm.comment.description },
+              on: {
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.$set(_vm.comment, "description", $event.target.value)
+                }
+              }
+            })
+          : _c("p", [_vm._v(_vm._s(_vm.comment.description))])
       ]),
       _vm._v(" "),
-      _vm._m(0)
+      _c("div", { staticClass: "panel-footer" }, [
+        _vm.editMode
+          ? _c(
+              "button",
+              {
+                staticClass: "btn btn-default",
+                on: {
+                  click: function($event) {
+                    _vm.onClickUpdate()
+                  }
+                }
+              },
+              [_vm._v("Update")]
+            )
+          : _c(
+              "button",
+              {
+                staticClass: "btn btn-default",
+                on: {
+                  click: function($event) {
+                    _vm.onClickEdit()
+                  }
+                }
+              },
+              [_vm._v("Edit")]
+            ),
+        _vm._v(" "),
+        _c(
+          "button",
+          {
+            staticClass: "btn btn-danger",
+            on: {
+              click: function($event) {
+                _vm.onClickDelete()
+              }
+            }
+          },
+          [_vm._v("Delete")]
+        )
+      ])
     ])
   ])
 }
-var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "panel-footer" }, [
-      _c("button", { staticClass: "btn btn-default" }, [_vm._v("Update")]),
-      _vm._v(" "),
-      _c("button", { staticClass: "btn btn-danger" }, [_vm._v("Delete")])
-    ])
-  }
-]
+var staticRenderFns = []
 render._withStripped = true
 module.exports = { render: render, staticRenderFns: staticRenderFns }
 if (false) {
@@ -48060,7 +48166,7 @@ exports = module.exports = __webpack_require__(12)(false);
 
 
 // module
-exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
+exports.push([module.i, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", ""]);
 
 // exports
 
@@ -48099,13 +48205,17 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
     methods: {
         newComment: function newComment() {
-            var comment = {
-                id: 2,
-                description: this.description,
-                created_at: '07/12/2018'
+            var _this = this;
+
+            var params = {
+                description: this.description
             };
-            this.$emit('new', comment);
             this.description = '';
+
+            axios.post('/comments', params).then(function (response) {
+                var comment = response.data;
+                _this.$emit('new', comment);
+            });
         }
     }
 });

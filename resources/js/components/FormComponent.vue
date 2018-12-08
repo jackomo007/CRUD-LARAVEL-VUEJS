@@ -25,13 +25,15 @@
         },
         methods: {
             newComment() {
-                let comment = {
-                    id: 2,
-                    description: this.description,
-                    created_at: '07/12/2018'
+                const params= {
+                    description : this.description
                 };
-                this.$emit('new', comment);
                 this.description = '';
+
+                axios.post('/comments', params).then((response) => {
+                    const comment = response.data;
+                    this.$emit('new', comment);
+                });
             }
         }
     }
